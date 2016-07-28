@@ -1,5 +1,7 @@
 package com.codepath.android.booksearch.models;
 
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.text.TextUtils;
 
 import org.json.JSONArray;
@@ -8,10 +10,38 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 
-public class Book {
+public class Book implements Parcelable {
     private String openLibraryId;
     private String author;
     private String title;
+
+    private String isbn;
+
+    private String weight;
+    private int pages;
+
+    public Book() {
+
+    }
+
+    protected Book(Parcel in) {
+        openLibraryId = in.readString();
+        author = in.readString();
+        title = in.readString();
+        isbn = in.readString();
+    }
+
+    public static final Creator<Book> CREATOR = new Creator<Book>() {
+        @Override
+        public Book createFromParcel(Parcel in) {
+            return new Book(in);
+        }
+
+        @Override
+        public Book[] newArray(int size) {
+            return new Book[size];
+        }
+    };
 
     public String getOpenLibraryId() {
         return openLibraryId;
@@ -38,12 +68,19 @@ public class Book {
             // Check if a cover edition is available
             if (jsonObject.has("cover_edition_key")) {
                 book.openLibraryId = jsonObject.getString("cover_edition_key");
-            } else if(jsonObject.has("edition_key")) {
+            } else if (jsonObject.has("edition_key")) {
                 final JSONArray ids = jsonObject.getJSONArray("edition_key");
                 book.openLibraryId = ids.getString(0);
             }
             book.title = jsonObject.has("title_suggest") ? jsonObject.getString("title_suggest") : "";
             book.author = getAuthor(jsonObject);
+
+            if (jsonObject.has("isbn")) {
+                JSONArray jsonArray = jsonObject.getJSONArray("isbn");
+                if (jsonArray.length() > 0) {
+                    book.isbn = jsonArray.getString(0);
+                }
+            }
         } catch (JSONException e) {
             e.printStackTrace();
             return null;
@@ -86,5 +123,42 @@ public class Book {
             }
         }
         return books;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(openLibraryId);
+        dest.writeString(author);
+        dest.writeString(title);
+        dest.writeString(isbn);
+    }
+
+    public String getIsbn() {
+        return isbn;
+    }
+
+    public void setIsbn(String isbn) {
+        this.isbn = isbn;
+    }
+
+    public String getWeight() {
+        return weight;
+    }
+
+    public void setWeight(String weight) {
+        this.weight = weight;
+    }
+
+    public int getPages() {
+        return pages;
+    }
+
+    public void setPages(int pages) {
+        this.pages = pages;
     }
 }

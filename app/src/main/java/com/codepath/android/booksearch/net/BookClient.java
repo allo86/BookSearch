@@ -27,4 +27,10 @@ public class BookClient {
             e.printStackTrace();
         }
     }
+
+    // Method for accessing the search API
+    public void getBookDetails(final String isbn, JsonHttpResponseHandler handler) {
+        String url = getApiUrl("api/books?format=json&jscmd=data&bibkeys=ISBN:" + isbn);
+        client.get(url, handler);
+    }
 }
